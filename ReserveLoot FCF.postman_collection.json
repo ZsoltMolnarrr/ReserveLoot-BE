@@ -1,0 +1,133 @@
+{
+	"info": {
+		"_postman_id": "32ce9a92-5297-4fdd-9ffd-fbca94c1475a",
+		"name": "ReserveLoot FCF",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create session",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"owner\": \"Someone else\",\n    \"description\": \"This going to be ossom\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/reserveloot-a4576/us-central1/app/api/session",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"reserveloot-a4576",
+						"us-central1",
+						"app",
+						"api",
+						"session"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get session with ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5001/reserveloot-a4576/us-central1/app/api/session/QR_N1xoCTp",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"reserveloot-a4576",
+						"us-central1",
+						"app",
+						"api",
+						"session",
+						"QR_N1xoCTp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put reservation",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Joe\",\n    \"itemId\": 22222\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/reserveloot-a4576/us-central1/app/api/session/_BKsj0lvP5/reservations",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"reserveloot-a4576",
+						"us-central1",
+						"app",
+						"api",
+						"session",
+						"_BKsj0lvP5",
+						"reservations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete reservation",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Joe\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/reserveloot-a4576/us-central1/app/api/session/_BKsj0lvP5/reservations",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"reserveloot-a4576",
+						"us-central1",
+						"app",
+						"api",
+						"session",
+						"_BKsj0lvP5",
+						"reservations"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

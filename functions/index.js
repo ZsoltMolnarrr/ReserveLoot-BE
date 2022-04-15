@@ -81,15 +81,17 @@ app.put('/api/session/:id/reservations', (req, res) => {
                 return res.status(403).send(error);
             }
 
-            let exisitingForSameSecret = reservations.find(e => e.secret === secret);
-            if (exisitingForSameSecret) {
-                error = {message: "You already have a reservation."};
+            let exisitingForSameSecret = reservations.filter(e => e.secret === secret).length;
+            if (exisitingForSameSecret >= 1) {
+                error = {message: "You cannot have more reservations."};
                 return res.status(403).send(error);
             }
 
             // Creating reservation
+            const id = nanoid();
             const modifiedAt = new Date().valueOf();
             const newReservation = {
+                id: id,
                 secret: secret,
                 name: name, 
                 itemId: itemId, 
@@ -116,7 +118,7 @@ app.delete('/api/session/:id/reservations', (req, res) => {
     ( async () => {
         try {
             const secret = readSecret(req);
-            const name = req.body.name
+            const id = req.body.id
 
             const document = db.collection('sessions').doc(req.params.id);
             let sessionDoc = await document.get();
@@ -124,7 +126,7 @@ app.delete('/api/session/:id/reservations', (req, res) => {
             let reservations = session.reservations;
 
             // Checks
-            let exisiting = reservations.find(e => e.name === name);
+            let exisiting = reservations.find(e => e.id === id);
             if (exisiting == null) {
                 error = {message: "Reservation not found."};
                 return res.status(403).send(error);
@@ -137,7 +139,7 @@ app.delete('/api/session/:id/reservations', (req, res) => {
             }
 
             // Deleting
-            reservations = reservations.filter(e => !(e.name === name));
+            reservations = reservations.filter(e => !(e.id === id));
 
             await document.update({
                 reservations: reservations

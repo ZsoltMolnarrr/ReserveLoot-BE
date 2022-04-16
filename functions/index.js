@@ -123,10 +123,10 @@ app.delete("/api/session/:sessionId/reservations/:reservationId", (req, res) => 
     ( async () => {
         try {
             const secret = readSecret(req);
-            const sessionId = req.params.sessionId
+            const sessionId = req.params.sessionId;
             const reservationId = req.params.reservationId;
 
-            const document = db.collection("sessions").doc(req.params.sessionId);
+            const document = db.collection("sessions").doc(sessionId);
             let sessionDoc = await document.get();
             let session = sessionDoc.data();
             let reservations = session.reservations;

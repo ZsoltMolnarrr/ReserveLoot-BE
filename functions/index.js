@@ -119,19 +119,25 @@ app.put("/api/session/:id/reservations", (req, res) => {
 
 // Delete
 // Delete reservation
-app.delete("/api/session/:id/reservations", (req, res) => {
+app.delete("/api/session/:sessionId/reservations/:reservationId", (req, res) => {
     ( async () => {
         try {
             const secret = readSecret(req);
-            const id = req.body.id;
+            const sessionId = req.params.sessionId
+            const reservationId = req.params.reservationId;
 
-            const document = db.collection("sessions").doc(req.params.id);
+            const document = db.collection("sessions").doc(req.params.sessionId);
             let sessionDoc = await document.get();
             let session = sessionDoc.data();
             let reservations = session.reservations;
 
             // Checks
-            let exisiting = reservations.find(e => e.id === id);
+            if (reservationId == null || reservationId == "") {
+                error = {message: "Missing reservationId"};
+                return res.status(401).send(error);
+            }
+
+            let exisiting = reservations.find(e => e.id === reservationId);
             if (exisiting == null) {
                 error = {message: "Reservation not found."};
                 return res.status(403).send(error);
@@ -144,7 +150,7 @@ app.delete("/api/session/:id/reservations", (req, res) => {
             }
 
             // Deleting
-            reservations = reservations.filter(e => !(e.id === id));
+            reservations = reservations.filter(e => !(e.id === reservationId));
 
             await document.update({
                 reservations: reservations,

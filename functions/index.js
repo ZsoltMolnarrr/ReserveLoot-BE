@@ -1,9 +1,7 @@
 const functions = require("firebase-functions");
 
 let admin = require("firebase-admin");
-let serviceAccount = require("../../reserveloot-a4576-firebase-adminsdk-y5bab-8da9c8f62c.json");
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://reserveloot-a4576-default-rtdb.europe-west1.firebasedatabase.app",
 });
 
@@ -187,4 +185,6 @@ function stripedSecretFrom(reservations) {
 }
 
 // Export the api to Firebase Cloud Functions
-exports.app = functions.https.onRequest(app);
+exports.app = functions
+    .region("europe-west1")
+    .https.onRequest(app);

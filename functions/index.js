@@ -11,7 +11,9 @@ const express = require("express");
 const app = express();
 const db = admin.firestore();
 const cors = require("cors");
-const { nanoid } = require('nanoid')
+const { nanoid } = require('nanoid');
+const crypto = require('crypto');
+
 app.use( cors( { origin:true } ) );
 
 // Create
@@ -49,8 +51,13 @@ app.get('/api/session/:id', (req, res) => {
     ( async () => {
         try {
             const document = db.collection('sessions').doc(req.params.id);
-            let session = await document.get();
-            let response = stripedSecretFromSession(session.data());
+            let sessionDoc = await document.get();
+            let session = sessionDoc.data()
+            if (session == null) {
+                error = {message: "Session not found."};
+                return res.status(404).send(error);
+            }
+            let response = stripedSecretFromSession(session);
             return res.status(200).send(response)
         }
         catch (error) {
@@ -159,7 +166,11 @@ function readSecret(req) {
     if (secret == null) {
         throw 'Missing secret from header';
     }
-    return secret
+    const hashSecret = 'nice420'
+    const hash = crypto.createHmac('sha256', hashSecret)
+                   .update(secret)
+                   .digest('hex');
+    return hash
 }
 
 function stripedSecretFromSession(session) {

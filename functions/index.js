@@ -1,23 +1,23 @@
 const functions = require("firebase-functions");
 
-var admin = require("firebase-admin");
-var serviceAccount = require("../../reserveloot-a4576-firebase-adminsdk-y5bab-8da9c8f62c.json");
+let admin = require("firebase-admin");
+let serviceAccount = require("../../reserveloot-a4576-firebase-adminsdk-y5bab-8da9c8f62c.json");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://reserveloot-a4576-default-rtdb.europe-west1.firebasedatabase.app"
+  databaseURL: "https://reserveloot-a4576-default-rtdb.europe-west1.firebasedatabase.app",
 });
 
 const express = require("express");
 const app = express();
 const db = admin.firestore();
 const cors = require("cors");
-const { nanoid } = require('nanoid');
-const crypto = require('crypto');
+const { nanoid } = require("nanoid");
+const crypto = require("crypto");
 
-app.use( cors( { origin:true } ) );
+app.use( cors( { origin: true } ) );
 
 // Create
-app.post('/api/session', (req, res) => {
+app.post("/api/session", (req, res) => {
     ( async () => {
         try {
             const id = nanoid(10);
@@ -27,16 +27,16 @@ app.post('/api/session', (req, res) => {
             if (maximumReservationsPerUser < 1) {
                 maximumReservationsPerUser = 1;
             }
-            await db.collection('sessions').doc('/' + id + '/')
+            await db.collection("sessions").doc("/" + id + "/")
             .create({
                 owner: req.body.owner,
                 secret: secret,
                 description: req.body.description,
                 createdAt: createdAt,
-                reservations: []
-            })
-            const response = {id: id}
-            return res.status(200).send(response)
+                reservations: [],
+            });
+            const response = {id: id};
+            return res.status(200).send(response);
         }
         catch (error) {
             console.log(error);
@@ -47,18 +47,18 @@ app.post('/api/session', (req, res) => {
 
 // Read
 // Get single session with Id
-app.get('/api/session/:id', (req, res) => {
+app.get("/api/session/:id", (req, res) => {
     ( async () => {
         try {
-            const document = db.collection('sessions').doc(req.params.id);
+            const document = db.collection("sessions").doc(req.params.id);
             let sessionDoc = await document.get();
-            let session = sessionDoc.data()
+            let session = sessionDoc.data();
             if (session == null) {
                 error = {message: "Session not found."};
                 return res.status(404).send(error);
             }
             let response = stripedSecretFromSession(session);
-            return res.status(200).send(response)
+            return res.status(200).send(response);
         }
         catch (error) {
             console.log(error);
@@ -69,14 +69,14 @@ app.get('/api/session/:id', (req, res) => {
 
 // Update
 // Put reservation
-app.put('/api/session/:id/reservations', (req, res) => {
+app.put("/api/session/:id/reservations", (req, res) => {
     ( async () => {
         try {
             const secret = readSecret(req);
-            const itemId = req.body.itemId
-            const name = req.body.name
+            const itemId = req.body.itemId;
+            const name = req.body.name;
 
-            const document = db.collection('sessions').doc(req.params.id);
+            const document = db.collection("sessions").doc(req.params.id);
             let sessionDoc = await document.get();
             let session = sessionDoc.data();
             let reservations = session.reservations;
@@ -100,16 +100,16 @@ app.put('/api/session/:id/reservations', (req, res) => {
             const newReservation = {
                 id: id,
                 secret: secret,
-                name: name, 
-                itemId: itemId, 
-                modifiedAt: modifiedAt
+                name: name,
+                itemId: itemId,
+                modifiedAt: modifiedAt,
             };
             reservations.push(newReservation);
 
             await document.update({
-                reservations: reservations
+                reservations: reservations,
             });
-            
+
             return res.status(200).send();
         }
         catch (error) {
@@ -121,13 +121,13 @@ app.put('/api/session/:id/reservations', (req, res) => {
 
 // Delete
 // Delete reservation
-app.delete('/api/session/:id/reservations', (req, res) => {
+app.delete("/api/session/:id/reservations", (req, res) => {
     ( async () => {
         try {
             const secret = readSecret(req);
-            const id = req.body.id
+            const id = req.body.id;
 
-            const document = db.collection('sessions').doc(req.params.id);
+            const document = db.collection("sessions").doc(req.params.id);
             let sessionDoc = await document.get();
             let session = sessionDoc.data();
             let reservations = session.reservations;
@@ -139,7 +139,7 @@ app.delete('/api/session/:id/reservations', (req, res) => {
                 return res.status(403).send(error);
             }
 
-            const permittedToDelete = secret == exisiting.secret  || secret == session.secret;
+            const permittedToDelete = secret == exisiting.secret || secret == session.secret;
             if (!permittedToDelete) {
                 error = {message: "You cannot delete that reservation."};
                 return res.status(403).send(error);
@@ -149,9 +149,9 @@ app.delete('/api/session/:id/reservations', (req, res) => {
             reservations = reservations.filter(e => !(e.id === id));
 
             await document.update({
-                reservations: reservations
+                reservations: reservations,
             });
-            
+
             return res.status(200).send();
         }
         catch (error) {
@@ -164,26 +164,26 @@ app.delete('/api/session/:id/reservations', (req, res) => {
 function readSecret(req) {
     let secret = req.headers.secret;
     if (secret == null) {
-        throw 'Missing secret from header';
+        throw "Missing secret from header";
     }
-    const hashSecret = 'nice420'
-    const hash = crypto.createHmac('sha256', hashSecret)
+    const hashSecret = "nice420";
+    const hash = crypto.createHmac("sha256", hashSecret)
                    .update(secret)
-                   .digest('hex');
-    return hash
+                   .digest("hex");
+    return hash;
 }
 
 function stripedSecretFromSession(session) {
     delete(session.secret);
     session.reservations = stripedSecretFrom(session.reservations);
-    return session
+    return session;
 }
 
 function stripedSecretFrom(reservations) {
     for (r of reservations) {
         delete(r.secret);
     }
-    return reservations
+    return reservations;
 }
 
 // Export the api to Firebase Cloud Functions
